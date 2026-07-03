@@ -1,0 +1,261 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * SANATANA — Temple-inspired design system.
+ * Warm sandstone, saffron, temple gold, muted maroon, ivory parchment.
+ * All colors in oklch. All decorative textures live on tokens, not components.
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Sacred palette */
+  --color-saffron: var(--saffron);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --color-bronze: var(--bronze);
+  --color-sandstone: var(--sandstone);
+  --color-ivory: var(--ivory);
+  --color-cream: var(--cream);
+  --color-maroon: var(--maroon);
+  --color-brown: var(--brown);
+  --color-lotus: var(--lotus);
+  --color-peacock: var(--peacock);
+  --color-turquoise: var(--turquoise);
+  --color-copper: var(--copper);
+
+  --font-serif: "Cormorant Garamond", "Cormorant", ui-serif, Georgia, serif;
+  --font-display: "Cinzel", "Cormorant Garamond", ui-serif, serif;
+  --font-devanagari: "Noto Serif Devanagari", "Tiro Devanagari Sanskrit", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Sacred temple palette */
+  --saffron: oklch(0.68 0.17 55);
+  --gold: oklch(0.78 0.14 82);
+  --gold-soft: oklch(0.86 0.09 85);
+  --bronze: oklch(0.52 0.11 60);
+  --sandstone: oklch(0.86 0.05 75);
+  --ivory: oklch(0.96 0.025 85);
+  --cream: oklch(0.93 0.04 82);
+  --maroon: oklch(0.36 0.11 25);
+  --brown: oklch(0.28 0.06 45);
+  --lotus: oklch(0.72 0.12 15);
+  --peacock: oklch(0.42 0.13 220);
+  --turquoise: oklch(0.68 0.11 195);
+  --copper: oklch(0.58 0.14 45);
+
+  --background: oklch(0.94 0.035 82);
+  --foreground: oklch(0.24 0.05 40);
+  --card: oklch(0.97 0.025 85);
+  --card-foreground: oklch(0.24 0.05 40);
+  --popover: oklch(0.97 0.025 85);
+  --popover-foreground: oklch(0.24 0.05 40);
+  --primary: oklch(0.36 0.11 25);           /* muted maroon */
+  --primary-foreground: oklch(0.96 0.025 85);
+  --secondary: oklch(0.88 0.06 78);
+  --secondary-foreground: oklch(0.28 0.06 45);
+  --muted: oklch(0.9 0.035 82);
+  --muted-foreground: oklch(0.45 0.05 45);
+  --accent: oklch(0.78 0.14 82);            /* temple gold */
+  --accent-foreground: oklch(0.24 0.05 40);
+  --destructive: oklch(0.52 0.2 25);
+  --destructive-foreground: oklch(0.96 0.025 85);
+  --border: oklch(0.78 0.06 70 / 0.5);
+  --input: oklch(0.82 0.05 75);
+  --ring: oklch(0.68 0.17 55);
+
+  /* Sacred gradients & shadows */
+  --gradient-gold: linear-gradient(135deg, oklch(0.86 0.09 85), oklch(0.72 0.15 70), oklch(0.55 0.12 50));
+  --gradient-sunrise: linear-gradient(180deg, oklch(0.92 0.08 85) 0%, oklch(0.82 0.14 65) 45%, oklch(0.58 0.14 40) 100%);
+  --gradient-temple: radial-gradient(ellipse at top, oklch(0.88 0.11 80 / 0.9), oklch(0.68 0.12 55 / 0.4) 45%, oklch(0.28 0.08 35 / 0.95) 100%);
+  --gradient-parchment: linear-gradient(180deg, oklch(0.96 0.03 85) 0%, oklch(0.9 0.05 78) 100%);
+  --gradient-night: linear-gradient(180deg, oklch(0.15 0.03 35) 0%, oklch(0.22 0.06 30) 100%);
+
+  --shadow-gold: 0 20px 60px -20px oklch(0.55 0.15 55 / 0.45), 0 0 0 1px oklch(0.78 0.14 82 / 0.3) inset;
+  --shadow-carved: 0 1px 0 oklch(0.98 0.02 85 / 0.6) inset, 0 -1px 0 oklch(0.35 0.08 40 / 0.15) inset, 0 12px 32px -16px oklch(0.28 0.08 35 / 0.35);
+  --shadow-glow: 0 0 60px oklch(0.78 0.14 82 / 0.35);
+}
+
+.dark {
+  --background: oklch(0.15 0.03 35);
+  --foreground: oklch(0.92 0.04 82);
+  --card: oklch(0.2 0.04 35);
+  --card-foreground: oklch(0.92 0.04 82);
+  --popover: oklch(0.2 0.04 35);
+  --popover-foreground: oklch(0.92 0.04 82);
+  --primary: oklch(0.78 0.14 82);
+  --primary-foreground: oklch(0.18 0.04 35);
+  --secondary: oklch(0.28 0.06 40);
+  --secondary-foreground: oklch(0.92 0.04 82);
+  --muted: oklch(0.24 0.05 38);
+  --muted-foreground: oklch(0.72 0.05 78);
+  --accent: oklch(0.68 0.17 55);
+  --accent-foreground: oklch(0.15 0.03 35);
+  --border: oklch(0.78 0.14 82 / 0.2);
+  --input: oklch(0.32 0.06 40);
+  --ring: oklch(0.78 0.14 82);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    background-image:
+      radial-gradient(ellipse 800px 500px at 20% 0%, oklch(0.86 0.11 78 / 0.55), transparent 60%),
+      radial-gradient(ellipse 600px 400px at 100% 20%, oklch(0.78 0.14 82 / 0.35), transparent 60%),
+      radial-gradient(circle at 50% 100%, oklch(0.36 0.11 25 / 0.15), transparent 55%);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4, h5 { font-family: var(--font-serif); font-weight: 500; letter-spacing: -0.01em; }
+}
+
+/* ————————————————— Sacred utilities ————————————————— */
+
+@utility font-display { font-family: var(--font-display); letter-spacing: 0.08em; }
+@utility font-serif { font-family: var(--font-serif); }
+@utility font-devanagari { font-family: var(--font-devanagari); }
+
+@utility text-gradient-gold {
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility bg-gradient-gold { background: var(--gradient-gold); }
+@utility bg-gradient-sunrise { background: var(--gradient-sunrise); }
+@utility bg-gradient-temple { background: var(--gradient-temple); }
+@utility bg-gradient-parchment { background: var(--gradient-parchment); }
+@utility bg-gradient-night { background: var(--gradient-night); }
+
+@utility shadow-gold { box-shadow: var(--shadow-gold); }
+@utility shadow-carved { box-shadow: var(--shadow-carved); }
+@utility shadow-glow { box-shadow: var(--shadow-glow); }
+
+/* Parchment paper texture — subtle grain via layered gradients */
+@utility bg-parchment {
+  background-color: var(--cream);
+  background-image:
+    radial-gradient(circle at 20% 30%, oklch(0.55 0.12 50 / 0.08) 0px, transparent 2px),
+    radial-gradient(circle at 70% 60%, oklch(0.55 0.12 50 / 0.06) 0px, transparent 3px),
+    radial-gradient(circle at 40% 80%, oklch(0.36 0.11 25 / 0.05) 0px, transparent 2px),
+    linear-gradient(120deg, oklch(0.96 0.03 85) 0%, oklch(0.9 0.05 78) 100%);
+  background-size: 40px 40px, 55px 55px, 70px 70px, 100% 100%;
+}
+
+/* Temple stone texture */
+@utility bg-stone {
+  background-color: var(--sandstone);
+  background-image:
+    radial-gradient(circle at 30% 40%, oklch(0.55 0.1 50 / 0.15), transparent 40%),
+    radial-gradient(circle at 80% 70%, oklch(0.28 0.06 45 / 0.1), transparent 40%),
+    linear-gradient(180deg, oklch(0.86 0.06 75) 0%, oklch(0.72 0.08 65) 100%);
+}
+
+/* Golden ornamental divider */
+@utility divider-sacred {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.72 0.15 70 / 0.7) 50%, transparent);
+  position: relative;
+}
+
+/* Carved border effect */
+@utility border-carved {
+  border: 1px solid oklch(0.72 0.15 70 / 0.4);
+  box-shadow:
+    0 0 0 1px oklch(0.96 0.03 85 / 0.6) inset,
+    0 1px 0 oklch(0.98 0.02 85) inset,
+    0 -1px 0 oklch(0.36 0.11 25 / 0.1) inset;
+}
+
+/* Diya flame glow */
+@keyframes flicker {
+  0%, 100% { opacity: 1; transform: scale(1); filter: blur(0px); }
+  50% { opacity: 0.85; transform: scale(1.08); filter: blur(0.5px); }
+}
+@utility animate-flicker { animation: flicker 2.4s ease-in-out infinite; }
+
+/* Floating dust particles */
+@keyframes float-up {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.4; }
+  100% { transform: translateY(-120vh) translateX(20px); opacity: 0; }
+}
+@utility animate-float-up { animation: float-up 18s linear infinite; }
+
+/* Slow shimmer for gold surfaces */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@utility animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, oklch(0.95 0.08 85 / 0.6) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 4s ease-in-out infinite;
+}
+
+/* Slow gentle rotation for mandalas */
+@keyframes rotate-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@utility animate-rotate-slow { animation: rotate-slow 120s linear infinite; }
+
+/* Lotus petal fall */
+@keyframes petal-fall {
+  0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.7; }
+  100% { transform: translateY(110vh) translateX(60px) rotate(360deg); opacity: 0; }
+}
+@utility animate-petal-fall { animation: petal-fall 14s linear infinite; }
+
+/* Fade rise for entrance */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@utility animate-rise { animation: rise 1.2s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* Bell sway */
+@keyframes sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@utility animate-sway { animation: sway 5s ease-in-out infinite; transform-origin: top center; }
