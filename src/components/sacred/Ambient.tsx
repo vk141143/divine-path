@@ -1,21 +1,34 @@
 /* Ambient temple particles & light rays — pure CSS, no JS animation */
+
+// Deterministic pseudo-random: same seed → same value on server and client
+function seeded(seed: number) {
+  const x = Math.sin(seed + 1) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+// Round to 4 decimal places so SSR and client produce identical strings
+function r4(n: number) {
+  return Math.round(n * 10000) / 10000;
+}
+
 export function DustParticles({ count = 24 }: { count?: number }) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {Array.from({ length: count }).map((_, i) => {
-        const size = 2 + Math.random() * 4;
-        const left = Math.random() * 100;
-        const delay = Math.random() * 18;
-        const duration = 14 + Math.random() * 10;
+        const s = (o: number) => seeded(i * 7 + o);
+        const size     = r4(2 + s(0) * 4);
+        const left     = r4(s(1) * 100);
+        const delay    = r4(s(2) * 18);
+        const duration = r4(14 + s(3) * 10);
         return (
           <span
             key={i}
             className="absolute bottom-0 rounded-full bg-gold/60 blur-[1px] animate-float-up"
             style={{
-              left: `${left}%`,
-              width: size,
-              height: size,
-              animationDelay: `${delay}s`,
+              left:              `${left}%`,
+              width:             size,
+              height:            size,
+              animationDelay:    `${delay}s`,
               animationDuration: `${duration}s`,
             }}
           />
@@ -29,20 +42,21 @@ export function LotusPetals({ count = 10 }: { count?: number }) {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {Array.from({ length: count }).map((_, i) => {
-        const left = Math.random() * 100;
-        const delay = Math.random() * 14;
-        const duration = 12 + Math.random() * 8;
-        const size = 10 + Math.random() * 14;
+        const s = (o: number) => seeded(i * 11 + o);
+        const left     = r4(s(0) * 100);
+        const delay    = r4(s(1) * 14);
+        const duration = r4(12 + s(2) * 8);
+        const size     = r4(10 + s(3) * 14);
         return (
           <svg
             key={i}
             viewBox="0 0 20 20"
             className="absolute top-0 text-lotus/70 animate-petal-fall"
             style={{
-              left: `${left}%`,
-              width: size,
-              height: size,
-              animationDelay: `${delay}s`,
+              left:              `${left}%`,
+              width:             size,
+              height:            size,
+              animationDelay:    `${delay}s`,
               animationDuration: `${duration}s`,
             }}
             aria-hidden

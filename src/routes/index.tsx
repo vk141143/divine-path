@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState, useRef, useCallback } from "react";
 import heroTemple from "@/assets/hero-temple.jpg";
 import mandalaBg from "@/assets/mandala-bg.jpg";
 import scriptureGita from "@/assets/scripture-gita.jpg";
@@ -14,6 +15,229 @@ export const Route = createFileRoute("/")({
   }),
   component: SanatanaHome,
 });
+
+/* ————————————————— Theme Switcher ————————————————— */
+
+// Phase machine:
+// idle → moon-spin → ripple-to-light → light-visible → sun-spin → ripple-to-dark → idle
+type Phase =
+  | "idle"
+  | "moon-spin"
+  | "ripple-to-light"
+  | "light-visible"
+  | "sun-spin"
+  | "ripple-to-dark";
+
+const RIPPLE_DURATION = 930;
+const SPIN_DURATION   = 420;
+
+// Diagonal of the viewport — guarantees full coverage from any origin
+function maxRippleRadius(ox: number, oy: number) {
+  const vw = typeof window !== "undefined" ? window.innerWidth  : 1440;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 900;
+  return Math.ceil(Math.hypot(Math.max(ox, vw - ox), Math.max(oy, vh - oy)) * 1.08);
+}
+
+function ThemeSwitcher() {
+  const [phase, setPhase]         = useState<Phase>("idle");
+  const [origin, setOrigin]       = useState({ x: 0, y: 0 });
+  const [iframeReady, setIframeReady] = useState(false);
+  const moonBtnRef = useRef<HTMLButtonElement>(null);
+  const sunBtnRef  = useRef<HTMLButtonElement>(null);
+  const timers     = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const after = (ms: number, fn: () => void) => {
+    const id = setTimeout(fn, ms);
+    timers.current.push(id);
+  };
+  const clearAll = () => { timers.current.forEach(clearTimeout); timers.current = []; };
+
+  // Moon clicked → open light theme
+  const onMoonClick = useCallback(() => {
+    if (phase !== "idle") return;
+    const rect = moonBtnRef.current!.getBoundingClientRect();
+    setOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setIframeReady(false);
+    setPhase("moon-spin");
+    after(SPIN_DURATION, () => setPhase("ripple-to-light"));
+    after(SPIN_DURATION + RIPPLE_DURATION, () => setPhase("light-visible"));
+  }, [phase]);
+
+  // Sun clicked → return to dark theme
+  const onSunClick = useCallback(() => {
+    if (phase !== "light-visible") return;
+    const rect = sunBtnRef.current!.getBoundingClientRect();
+    setOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
+    setPhase("sun-spin");
+    after(SPIN_DURATION, () => setPhase("ripple-to-dark"));
+    after(SPIN_DURATION + RIPPLE_DURATION, () => { clearAll(); setPhase("idle"); });
+  }, [phase]);
+
+  const radius = maxRippleRadius(origin.x, origin.y);
+
+  // Ripple circle: positioned so its center sits exactly at origin
+  const rippleSize = radius * 2;
+  const rippleStyle = (color: string, expanding: boolean): React.CSSProperties => ({
+    position:  "fixed",
+    zIndex:    55,
+    width:     rippleSize,
+    height:    rippleSize,
+    borderRadius: "50%",
+    background: color,
+    top:       origin.y - radius,
+    left:      origin.x - radius,
+    willChange: "transform",
+    pointerEvents: "none",
+    transform: expanding ? "scale(1)" : "scale(0)",
+    transition: expanding
+      ? `transform ${RIPPLE_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`
+      : `transform ${RIPPLE_DURATION}ms cubic-bezier(0.4, 0, 0.2, 1)`,
+    transformOrigin: "center center",
+  });
+
+  // Shared button base styles
+  const btnBase: React.CSSProperties = {
+    position:     "fixed",
+    top:          24,
+    right:        24,
+    zIndex:       60,
+    width:        44,
+    height:       44,
+    borderRadius: "50%",
+    display:      "grid",
+    placeItems:   "center",
+    cursor:       "pointer",
+    border:       "none",
+    outline:      "none",
+    transition:   "transform 0.2s ease, box-shadow 0.2s ease",
+  };
+
+  const isLightVisible = phase === "light-visible" || phase === "sun-spin" || phase === "ripple-to-dark";
+  const showRippleToLight = phase === "ripple-to-light" || phase === "light-visible";
+  const showRippleToDark  = phase === "ripple-to-dark";
+
+  return (
+    <>
+      {/* ─── Moon button (dark page) ─── */}
+      <button
+        ref={moonBtnRef}
+        onClick={onMoonClick}
+        aria-label="Switch to light theme"
+        disabled={phase !== "idle"}
+        style={{
+          ...btnBase,
+          background: "oklch(0.93 0.04 82 / 0.88)",
+          boxShadow:  "0 4px 20px oklch(0.78 0.14 82 / 0.25), 0 0 0 1px oklch(0.78 0.14 82 / 0.35) inset",
+          color:      "oklch(0.36 0.11 25)",
+          opacity:    isLightVisible ? 0 : 1,
+          pointerEvents: isLightVisible ? "none" : "auto",
+          animation:  phase === "moon-spin"
+            ? `icon-spin-glow ${SPIN_DURATION}ms cubic-bezier(0.4,0,0.2,1) forwards`
+            : "none",
+        }}
+      >
+        {/* Moon SVG */}
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden>
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+        </svg>
+      </button>
+
+      {/* ─── Ivory ripple — expands to reveal light page ─── */}
+      {(phase === "moon-spin" || phase === "ripple-to-light" || phase === "light-visible") && (
+        <div
+          aria-hidden
+          style={rippleStyle(
+            "linear-gradient(135deg, oklch(0.97 0.02 85) 0%, oklch(0.93 0.04 82) 60%, oklch(0.88 0.06 80) 100%)",
+            showRippleToLight
+          )}
+        />
+      )}
+
+      {/* ─── Iframe — always mounted once opened, toggled via opacity ─── */}
+      {phase !== "idle" && phase !== "moon-spin" && (
+        <iframe
+          src="https://lighthemee.netlify.app/"
+          title="Light Theme"
+          onLoad={() => setIframeReady(true)}
+          aria-hidden={!isLightVisible}
+          style={{
+            position:      "fixed",
+            inset:         0,
+            zIndex:        40,
+            width:         "100%",
+            height:        "100%",
+            border:        "none",
+            opacity:       isLightVisible && iframeReady ? 1 : 0,
+            pointerEvents: isLightVisible ? "auto" : "none",
+            transition:    "opacity 0.35s ease",
+          }}
+        />
+      )}
+
+      {/* Loading spinner while iframe loads */}
+      {(phase === "light-visible") && !iframeReady && (
+        <div
+          aria-hidden
+          style={{
+            position:    "fixed",
+            inset:       0,
+            zIndex:      45,
+            display:     "grid",
+            placeItems:  "center",
+            background:  "oklch(0.93 0.04 82)",
+            pointerEvents: "none",
+          }}
+        >
+          <div style={{
+            width:       40,
+            height:      40,
+            borderRadius: "50%",
+            border:      "3px solid oklch(0.78 0.14 82 / 0.25)",
+            borderTopColor: "oklch(0.78 0.14 82)",
+            animation:   "spin-loader 0.75s linear infinite",
+          }} />
+        </div>
+      )}
+
+      {/* ─── Sun button (floats over iframe) ─── */}
+      <button
+        ref={sunBtnRef}
+        onClick={onSunClick}
+        aria-label="Return to Sanatana"
+        disabled={phase !== "light-visible"}
+        style={{
+          ...btnBase,
+          background: "oklch(0.97 0.02 85 / 0.88)",
+          boxShadow:  "0 4px 20px oklch(0.75 0.16 85 / 0.3), 0 0 0 1px oklch(0.78 0.14 82 / 0.4) inset",
+          color:      "oklch(0.52 0.14 75)",
+          opacity:    isLightVisible ? 1 : 0,
+          pointerEvents: isLightVisible && phase === "light-visible" ? "auto" : "none",
+          animation:  phase === "sun-spin"
+            ? `icon-spin-glow-sun ${SPIN_DURATION}ms cubic-bezier(0.4,0,0.2,1) forwards`
+            : "none",
+        }}
+      >
+        {/* Sun SVG */}
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" />
+        </svg>
+      </button>
+
+      {/* ─── Dark sacred ripple — expands to return to dark page ─── */}
+      {(phase === "sun-spin" || phase === "ripple-to-dark") && (
+        <div
+          aria-hidden
+          style={rippleStyle(
+            "linear-gradient(135deg, oklch(0.22 0.06 45) 0%, oklch(0.18 0.04 40) 50%, oklch(0.14 0.02 45) 100%)",
+            showRippleToDark
+          )}
+        />
+      )}
+    </>
+  );
+}
 
 /* ————————————————— Small primitives ————————————————— */
 
@@ -98,6 +322,7 @@ function TabBar({ active = "Home" }: { active?: string }) {
 function SanatanaHome() {
   return (
     <main className="relative overflow-hidden bg-parchment">
+      <ThemeSwitcher />
       <TopBar />
       <Hero />
       <Manifesto />
@@ -134,9 +359,11 @@ function TopBar() {
         <a href="#temples" className="hover:text-primary">Temples</a>
         <a href="#premium" className="hover:text-primary">Premium</a>
       </nav>
-      <button className="rounded-full border border-gold/60 bg-cream/60 px-5 py-2 font-serif text-sm italic text-primary shadow-carved backdrop-blur transition hover:bg-cream">
-        Begin Journey
-      </button>
+      <div className="flex items-center gap-3">
+        <button className="rounded-full border border-gold/60 bg-cream/60 px-5 py-2 font-serif text-sm italic text-primary shadow-carved backdrop-blur transition hover:bg-cream">
+          Begin Journey
+        </button>
+      </div>
     </header>
   );
 }
